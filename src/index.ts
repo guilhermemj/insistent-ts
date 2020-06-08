@@ -3,7 +3,7 @@ type ErrorEvaluator = (error: any) => boolean;
 type IncrementResolver = (lastValue: number) => number;
 
 export type InsistentOptions<R> = {
-  callback: RetriableFunction<R>;
+  task: RetriableFunction<R>;
 
   retryWhen?: ErrorEvaluator;
   maxRetries?: number;
@@ -15,14 +15,15 @@ export type InsistentOptions<R> = {
 const sleep = (duration: number): Promise<void> => new Promise(r => setTimeout(r, duration));
 
 export async function insistOn<R = void>(options: InsistentOptions<R>): Promise<R> {
-  const fn = options.callback;
+  const targetFn = options.task;
   const shouldRetry = options.retryWhen ?? (() => true);
   const retryCount = options.maxRetries ?? 3;
   const retryInterval = options.retryInterval ?? 0;
   const getNextInterval = options.incrementIntervalWith ?? (last => last);
 
   try {
-    return await fn();
+    // TODO: Call targetFn with some running metadata
+    return await targetFn();
   } catch (error) {
     if (retryCount <= 0 || !shouldRetry(error)) {
       throw error;
