@@ -1,6 +1,6 @@
 {
   "name": "@guilhermemj/insistent",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A simple library to retry functions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
