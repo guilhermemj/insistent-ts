@@ -1,10 +1,8 @@
-type RetriableFunction<R> = (() => Promise<R>) | (() => R);
-type ErrorEvaluator = (error: any) => boolean;
-type IncrementResolver = (lastValue: number) => number;
+export type RetriableFunction<R = void> = (() => Promise<R>) | (() => R);
+export type ErrorEvaluator = (error: any) => boolean;
+export type IncrementResolver = (lastValue: number) => number;
 
-export type InsistentOptions<R> = {
-  task: RetriableFunction<R>;
-
+export type InsistentOptions = {
   retryWhen?: ErrorEvaluator;
   maxRetries?: number;
   retryInterval?: number;
@@ -12,10 +10,11 @@ export type InsistentOptions<R> = {
   incrementIntervalWith?: IncrementResolver;
 }
 
-const sleep = (duration: number): Promise<void> => new Promise(r => setTimeout(r, duration));
+function sleep(duration: number): Promise<void> {
+  return new Promise(r => setTimeout(r, duration));
+}
 
-export async function insistOn<R = void>(options: InsistentOptions<R>): Promise<R> {
-  const targetFn = options.task;
+export async function insistOn<R = void>(targetFn: RetriableFunction<R>, options: InsistentOptions = {}): Promise<R> {
   const shouldRetry = options.retryWhen ?? (() => true);
   const retryCount = options.maxRetries ?? 3;
   const retryInterval = options.retryInterval ?? 0;
@@ -31,10 +30,14 @@ export async function insistOn<R = void>(options: InsistentOptions<R>): Promise<
 
     await sleep(retryInterval);
 
-    return await insistOn({
+    return await insistOn(targetFn, {
       ...options,
       maxRetries: retryCount - 1,
       retryInterval: getNextInterval(retryInterval),
     });
   }
+}
+
+export function createInsistent(defaultOptions: InsistentOptions): (typeof insistOn) {
+  return (fn, options = {}) => insistOn(fn, { ...defaultOptions, ...options });
 }
