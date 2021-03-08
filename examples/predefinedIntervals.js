@@ -5,12 +5,13 @@ const INTERVALS = [
   2000,
   5000,
   10000,
+  15000,
 ];
 
 (async () => {
   try {
     const insistWithIntervals = createInsistent({
-      maxRetries: Infinity,
+      maxRetries: 5,
       retryInterval: INTERVALS[0],
       incrementIntervalWith: (lastInterval) => {
         const nextIndex = INTERVALS.indexOf(lastInterval) + 1;
