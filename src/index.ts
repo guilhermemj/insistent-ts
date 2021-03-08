@@ -20,6 +20,10 @@ export async function insistOn<R = void>(targetFn: RetriableFunction<R>, options
   const retryInterval = options.retryInterval ?? 0;
   const getNextInterval = options.incrementIntervalWith ?? (last => last);
 
+  if (retryInterval < 0) {
+    throw new RangeError("retryInterval must be greater than or equal 0");
+  }
+
   try {
     // TODO: Call targetFn with some running metadata
     return await targetFn();
@@ -28,7 +32,9 @@ export async function insistOn<R = void>(targetFn: RetriableFunction<R>, options
       throw error;
     }
 
-    await sleep(retryInterval);
+    if (retryInterval) {
+      await sleep(retryInterval);
+    }
 
     return await insistOn(targetFn, {
       ...options,
