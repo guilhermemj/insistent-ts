@@ -1,6 +1,6 @@
-export type RetriableFunction<R = void> = (() => Promise<R>) | (() => R);
-export type ErrorEvaluator = (error: any) => boolean;
+export type ErrorEvaluator = (error: unknown) => boolean;
 export type IncrementResolver = (lastValue: number) => number;
+export type RetriableFunction<R = void> = (() => Promise<R>) | (() => R);
 
 export type InsistentOptions = {
   retryWhen?: ErrorEvaluator;
@@ -32,7 +32,7 @@ export async function insistOn<R = void>(targetFn: RetriableFunction<R>, options
       throw error;
     }
 
-    if (retryInterval) {
+    if (retryInterval > 0) {
       await sleep(retryInterval);
     }
 
