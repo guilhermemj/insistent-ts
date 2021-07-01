@@ -1,4 +1,5 @@
-export type ErrorEvaluator = (error: unknown) => boolean;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ErrorEvaluator = (error: any) => boolean;
 export type IncrementResolver = (lastValue: number) => number;
 export type RetriableFunction<R = void> = (() => Promise<R>) | (() => R);
 
